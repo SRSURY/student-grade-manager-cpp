@@ -1,2 +1,2 @@
-# Student Grade Manager
-🚧 Proyecto de aprendizaje en progreso — construido mientras estudio C++.
+# Student Grade Manager C++
+✅ Proyecto finalizado.

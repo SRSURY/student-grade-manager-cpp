@@ -1,13 +1,16 @@
 #include <iostream>
+#include <vector>
 #include "menu.h"
 #include "materia.h"
 using namespace std;
 
 void menu(){
     int option;
-    cin >> option;
+    
+    vector<Materia> materias;
+    materias = cargarMaterias();
     do{
-        cout << "Bienvenido al Gestor de Notas"<< endl;
+        cout << "\nBienvenido al Gestor de Notas"<< endl;
         cout << "Que deseas hacer: " << endl;
         cout << "1. Agregar Materia" << endl;
         cout << "2. Mostrar Materias" << endl;
@@ -16,23 +19,31 @@ void menu(){
         cout << "5. Editar Materia" << endl;
         cout << "6. Eliminar Materia" << endl;
         cout << "7. Guardar y Salir" << endl;
-        
+        cin >> option;
         switch(option){
             case 1:
-                
+                agregarMateria(materias);
                 break;
             case 2:
+                mostrarMaterias(materias);
                 break;
             case 3:
+                cout << calcularPromedioSimple(materias);
                 break;
             case 4:
+                cout << calcularPromedioPonderado(materias);
                 break;
             case 5:
+                editarMateria(materias);
                 break;
             case 6:
+                eliminarMateria(materias);
                 break;
             case 7:
+                guardarMaterias(materias);
                 break;
+            default: 
+                cout << "bObote";
         }
         
     }while(option != 7);
