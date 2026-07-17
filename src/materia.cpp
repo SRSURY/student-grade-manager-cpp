@@ -12,19 +12,24 @@ void agregarMateria(vector<Materia>& materias){
     getline(cin, m.nombre);
     cout << "Ingresa la Nota de la Materia: ";
     validarEntradaDecimal(m.nota);
+    validarNota(m.nota);
     cout << "Ingresa el Tipo de la Materia (Universidad o Colegio): "; 
+    cin.ignore();
     getline(cin, m.tipo);
-    if(m.tipo == "Universidad" || m.tipo == "universidad"){
+    validarTextoTipo(m.tipo);
+    if(m.tipo == "universidad"){
         cout << "Cuantos Creditos tiene la Materia: ";
         validarEntradaEntero(m.creditos);
+        validarCreditos(m.creditos);
     }else{
         m.creditos = 0;
     }
     materias.push_back(m);
+    guardarMaterias(materias);
 }
 void mostrarMaterias(const vector<Materia>& materias){
     for(const Materia& m : materias){
-        if(m.tipo == "Universidad" || m.tipo == "universidad"){
+        if(m.tipo == "universidad"){
             cout << "Materia: " << m.nombre << " | Nota: " << m.nota
                  << " | Tipo: " << m.tipo << " | Creditos: " << m.creditos << endl;
         } else {
@@ -36,7 +41,7 @@ void mostrarMaterias(const vector<Materia>& materias){
 float calcularPromedioSimple(const vector<Materia>& materias){
     float promedio = 0;
     if(materias.size() == 0){
-        return 0;
+        return 0.0;
     }
     for(const Materia& m : materias){
         promedio += m.nota;
@@ -47,7 +52,7 @@ float calcularPromedioPonderado(const vector<Materia>& materias){
     float promedio = 0;
     int creditosTotal = 0;
     if(materias.size() == 0){
-        return 0;
+        return 0.0;
     }
     for(const Materia& m : materias){
         promedio += m.nota * m.creditos;
@@ -59,12 +64,17 @@ float calcularPromedioPonderado(const vector<Materia>& materias){
     return promedio / creditosTotal;
 }
 void editarMateria(vector<Materia>& materias){
+    if(materias.size() == 0){
+        cout << "No hay ninguna materia agregada.\n";
+        return;
+    }
     for(int i = 0; i < materias.size(); i++){
-        cout << materias[i].nombre << endl;
+        cout << i+1 <<". " << materias[i].nombre << endl;
     }
     int indice,op;
     cout << "¿Que Materia deseas Editar?" << endl;
     validarEntradaEntero(indice);
+    validarIndice(indice,materias);
     indice -= 1;
     do{
        cout << "1. Nombre " << endl;
@@ -85,18 +95,31 @@ void editarMateria(vector<Materia>& materias){
         case 2: {
             float newNote;
             validarEntradaDecimal(newNote);
+            validarNota(newNote);
             materias[indice].nota = newNote;
             break;
         }
         case 3: {
+            cin.ignore();
             string newTipo;
-            cin >> newTipo;
+            getline(cin, newTipo);
+            validarTextoTipo(newTipo);
             materias[indice].tipo = newTipo;
+            if(newTipo == "universidad"){
+                cout << "Ingresar creditos de la nueva materia: ";
+                int nuevosCreditos;
+                validarEntradaEntero(nuevosCreditos);
+                validarCreditos(nuevosCreditos);
+                materias[indice].creditos = nuevosCreditos;
+            }else{
+                materias[indice].creditos = 0;
+            }
             break;
         }
         case 4: {
             int newCredito;
             validarEntradaEntero(newCredito);
+            validarCreditos(newCredito);
             materias[indice].creditos = newCredito;
             break;
         }
@@ -109,32 +132,41 @@ void editarMateria(vector<Materia>& materias){
             break;
        }
     }while(op != 5);
-    
+    guardarMaterias(materias);
 }
 void eliminarMateria(vector<Materia>& materias){
+    if(materias.size() == 0){
+        cout << "No hay ninguna materia agregada.\n";
+        return;
+    }
     for(int i = 0; i < materias.size(); i++){
-        cout << materias[i].nombre << endl;
+        cout << i+1 <<". " << materias[i].nombre << endl;
     }
     int indice,op;
     cout << "¿Que Materia deseas Eliminar?" << endl;
     validarEntradaEntero(indice);
+    validarIndice(indice,materias);
     indice -= 1;
-    cout << "Confirmas Eliminar esta Materia? (1/0):";
+    cout << "Confirmas Eliminar esta Materia? (1/0): ";
     validarEntradaEntero(op);
     if(op == 1){
         materias.erase(materias.begin() + indice);
-        cout << "Se Elimino con Exito";
+        cout << "Se Elimino con Exito\n";
     }else{
-        cout << "No se Elimino la Materia";
+        cout << "No se Elimino la Materia\n";
     }
-    
+    guardarMaterias(materias);
 }
 void guardarMaterias(const vector<Materia>& materias){
     ofstream archivo("materias.txt");
+    if(!archivo){
+        cout << "El archivo no se abrio correctamente\n";
+        return;
+    }
     for(const Materia& m : materias){
         archivo << m.nombre << ",";
         archivo << m.nota << ",";
-        if(m.tipo == "Universidad" || m.tipo == "universidad"){
+        if(m.tipo == "universidad"){
             archivo << 1 << ",";
         }else{
             archivo << 0 << ",";
@@ -146,6 +178,10 @@ void guardarMaterias(const vector<Materia>& materias){
 }
 vector<Materia> cargarMaterias(){
     ifstream archivo("materias.txt");
+    if(!archivo){
+        cout << "No hay historial previo, empezando de cero.\n";
+        return vector<Materia>();
+    }
     vector<Materia> materias;
     string nombre, notaTexto, tipoTexto, creditosTexto, tipoNumTexto;
     while(getline(archivo, nombre, ',')){
@@ -155,8 +191,13 @@ vector<Materia> cargarMaterias(){
         getline(archivo, tipoTexto, '\n');
         Materia m;
         m.nombre = nombre;
-        m.nota = stof(notaTexto);        
-        m.creditos = stoi(creditosTexto); 
+        try{
+            m.nota = stof(notaTexto);        
+            m.creditos = stoi(creditosTexto); 
+        }catch(...){
+            cout << "Linea corrupta para \"" << nombre << "\", se omitio.\n";
+            continue;
+        }
         m.tipo = tipoTexto;
         materias.push_back(m);
     }

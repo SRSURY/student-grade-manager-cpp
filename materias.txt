@@ -1,0 +1,4 @@
+Historia,4.5,0,0,colegio
+Quimica,4,1,3,universidad
+Ingles,4.2,0,0,colegio
+calculo,3.9,1,4,universidad

@@ -2,7 +2,7 @@
 #define MATERIA_H
 #include <vector>
 #include <string>
-using namespace std;
+using namespace std;// Es mala practica pero me dio flojera
 struct Materia  {
     string nombre;
     float nota;

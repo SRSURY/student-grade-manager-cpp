@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <iomanip>
 #include "menu.h"
 #include "materia.h"
 #include "tools.h"
@@ -29,10 +30,19 @@ void menu(){
                 mostrarMaterias(materias);
                 break;
             case 3:
-                cout << calcularPromedioSimple(materias);
+                if(materias.size() == 0){
+                    cout << "No hay materias agregadas aun.\n";
+                }else{
+                    cout << "El Promedio es: " << setprecision(2) << calcularPromedioSimple(materias) << endl;
+                }
+                
                 break;
             case 4:
-                cout << calcularPromedioPonderado(materias);
+                if(materias.size() == 0){
+                    cout << "No hay materias agregadas aun.\n";
+                }else{
+                    cout <<  "El Promedio es: " << setprecision(2) << calcularPromedioPonderado(materias) << endl;
+                }
                 break;
             case 5:
                 editarMateria(materias);
@@ -44,7 +54,7 @@ void menu(){
                 guardarMaterias(materias);
                 break;
             default: 
-                cout << "bObote";
+                cout << "Error KaseO.\n";
         }
         
     }while(option != 7);
